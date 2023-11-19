@@ -1,5 +1,7 @@
 # Automating Scout Suite Security Scans for AWS
 
+**CODE IN THIS REPOSITORY IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY, USE AT YOUR OWN RISK.**
+
 ## Background
 
 See my series of blog posts for more details:
