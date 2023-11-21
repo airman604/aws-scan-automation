@@ -6,9 +6,8 @@
 
 See my series of blog posts for more details:
 
-* [Automating Scout Suite Scans for AWS - Part 1](https://airman604.medium.com/automating-scout-suite-scans-for-aws-ef65ec028bae)
-* [Automating Scout Suite Scans for AWS - Part 2](about:TBD)
-* [Automating Scout Suite Scans for AWS - Part 3](about:TBD)
+* [Part 1 - Automating Scout Suite Scans for AWS](https://airman604.medium.com/automating-scout-suite-scans-for-aws-ef65ec028bae)
+* [Part 2 - Deploying Scout Suite Automation to AWS Using CDK](https://airman604.medium.com/deploying-scout-suite-automation-to-aws-using-cdk-ebc39840dbb4)
 
 ## Architecture
 
