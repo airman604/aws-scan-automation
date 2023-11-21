@@ -1,11 +1,13 @@
 # Automating Scout Suite Security Scans for AWS
 
+**CODE IN THIS REPOSITORY IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY, USE AT YOUR OWN RISK.**
+
 ## Background
 
 See my series of blog posts for more details:
 
-* [Automating Scout Suite Scans for AWS - Part 1](https://airman604.medium.com/automating-scout-suite-scans-for-aws-ef65ec028bae)
-* [Automating Scout Suite Scans for AWS - Part 2](about:TBD)
+* [Part 1 - Automating Scout Suite Scans for AWS](https://airman604.medium.com/automating-scout-suite-scans-for-aws-ef65ec028bae)
+* [Part 2 - Deploying Scout Suite Automation to AWS Using CDK](https://airman604.medium.com/deploying-scout-suite-automation-to-aws-using-cdk-ebc39840dbb4)
 
 ## Architecture
 
@@ -24,7 +26,7 @@ As an alternative you can open this repository in **VS Code** with **Dev Contain
 and click **Reopen in Container**. The included development container configuration installs all the needed
 tools (you still need Docker though).
 
-```
+```bash
 # clone the rpository
 git clone https://github.com/airman604/aws-scan-automation.git
 cd aws-scan-automation
