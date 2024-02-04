@@ -1,0 +1,25 @@
+@startuml
+!include <awslib/AWSCommon>
+!include <awslib/AWSSimplified>
+!include <awslib/Compute/all>
+!include <awslib/Containers/all>
+!include <awslib/Storage/all>
+!include <awslib/ApplicationIntegration/all>
+
+left to right direction
+
+EventBridge(eb, "Schedule", "")
+Lambda(scanner, "Scout Suite", "")
+SimpleStorageService(s3, "Scan Reports", "")
+ElasticContainerRegistry(ecr, "ECR", "")
+Lambda(notifications, "Notifier", "")
+SimpleNotificationService(sns, "SNS Topic", "")
+
+
+eb --> scanner : Invoke on schedule
+ecr -> scanner : Scout Suite image
+scanner --> s3 : Upload scan report
+s3 --> notifications : Object upload notification
+notifications --> sns : Email links to reports
+
+@enduml
