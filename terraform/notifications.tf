@@ -1,9 +1,16 @@
-# SES identity (email) to send notifications to
-resource "aws_sesv2_email_identity" "notification_recipient" {
-  email_identity = var.notification_recipient
+module "notifications_sns" {
+  source  = "terraform-aws-modules/sns/aws"
+
+  name = "scout-notifications-topic"
+  subscriptions = {
+    email = {
+      protocol = "email"
+      endpoint = var.notification_recipient
+    }
+  }
 }
 
-# Lambda that will send SES notifications when new scan reports are uploaded to S3
+# Lambda that will send SNS notifications when new scan reports are uploaded to S3
 module "notification_lambda" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -24,21 +31,19 @@ module "notification_lambda" {
       ]
       resources = ["${aws_s3_bucket.s3_report_bucket.arn}/${local.s3_prefix}/*"]
     },
-    ses_send = {
+    sns_publish = {
       effect = "Allow"
       actions = [
-        "ses:SendEmail",
-        "ses:SendRawEmail"
+        "sns:Publish"
       ]
       resources = [
-        "${aws_sesv2_email_identity.notification_recipient.arn}"
+        module.notifications_sns.topic_arn
       ]
     }
   }
 
   # Lambda gets sender and recipient email addresses from environment
   environment_variables = {
-    SENDER    = var.notification_recipient
-    RECIPIENT = var.notification_recipient
+    SNS_TOPIC    = module.notifications_sns.topic_arn
   }
 }

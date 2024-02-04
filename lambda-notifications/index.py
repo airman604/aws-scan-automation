@@ -14,52 +14,34 @@ def handler(event: dict, context):
 
         bucket = r["s3"]["bucket"]["name"]
         object_key = r["s3"]["object"]["key"]
-        sendEmail(bucket, object_key)
+        sendNotification(bucket, object_key)
 
-def sendEmail(s3_bucket: str, s3_object_key: str):
-    SENDER = os.environ["SENDER"]
-    RECIPIENT = os.environ["RECIPIENT"]
-    SUBJECT = "ScoutSuite scan results"
-    aws_region = os.environ["AWS_REGION"]
+def sendNotification(s3_bucket: str, s3_object_key: str):
+    SNS_TOPIC = os.environ["SNS_TOPIC"]
+    AWS_REGION = os.environ["AWS_REGION"]
              
     presigned_url = create_presigned_url(s3_bucket, s3_object_key)
-    s3_console_link = f"https://s3.console.aws.amazon.com/s3/object/{s3_bucket}?region={aws_region}&prefix={s3_object_key}"
+    s3_console_link = f"https://s3.console.aws.amazon.com/s3/object/{s3_bucket}?region={AWS_REGION}&prefix={s3_object_key}"
 
-    BODY_TEXT = ("New ScoutSuite scan results are available:\r\n\r\n"
+    message = ("New ScoutSuite scan results are available:\r\n\r\n"
                  f"Direct download link (expires in 24 hours): {presigned_url}\r\n\r\n"
                  f"S3 object link in AWS console (use your AWS credentials to access): {s3_console_link}"
                 )
 
-    client = boto3.client('ses')
+    client = boto3.client('sns')
 
-    # Try to send the email.
+    # Send the notification
     try:
-        #Provide the contents of the email.
-        response = client.send_email(
-            Destination={
-                'ToAddresses': [
-                    RECIPIENT,
-                ],
-            },
-            Message={
-                'Body': {
-                    'Text': {
-                        'Charset': 'UTF-8',
-                        'Data': BODY_TEXT,
-                    },
-                },
-                'Subject': {
-                    'Charset': 'UTF-8',
-                    'Data': SUBJECT,
-                },
-            },
-            Source=SENDER
+        response = client.publish(
+            TopicArn=SNS_TOPIC,
+            Message=message,
+            Subject="ScoutSuite scan results"
         )
     except ClientError as e:
         # Display an error if something goes wrong.	
-        print(f"Error while sending email: {e.response['Error']['Message']}")
+        print(f"Error while sending notification: {e.response['Error']['Message']}")
     else:
-        print(f"Email sent for s3://{s3_bucket}/{s3_object_key}! Message ID: {response['MessageId']}"),
+        print(f"Notification sent for s3://{s3_bucket}/{s3_object_key}! Message ID: {response['MessageId']}"),
 
 def create_presigned_url(bucket_name, object_name, expiration=24*60*60):
     """Generate a presigned URL to share an S3 object

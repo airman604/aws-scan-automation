@@ -13,7 +13,7 @@ module "report_notifications" {
   # bucket defined earlier
   bucket = aws_s3_bucket.s3_report_bucket.id
 
-  # notification target is Lambda that will send emails using SES
+  # notification target is Lambda that will send emails using SNS
   lambda_notifications = {
     scout_report_notifications = {
       function_arn  = module.notification_lambda.lambda_function_arn

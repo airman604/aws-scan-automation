@@ -2,8 +2,6 @@
 
 **CODE IN THIS REPOSITORY IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY, USE AT YOUR OWN RISK.**
 
-**CODE IN THIS REPOSITORY IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY, USE AT YOUR OWN RISK.**
-
 ## Background
 
 See my series of blog posts for more details:
@@ -30,8 +28,8 @@ As an alternative you can open this repository in **VS Code** with **Dev Contain
 and click **Reopen in Container**. The included development container configuration installs all the needed
 tools (you still need Docker though).
 
-```bashbash
-# clone the rpository
+```bash
+# clone the repository
 git clone https://github.com/airman604/aws-scan-automation.git
 cd aws-scan-automation
 
@@ -42,12 +40,13 @@ aws configure
 # note: you can add --profile AWS_PROFILE to cdk all subsequent cdk
 #       commands to use specific AWS CLI profile
 cd cdk
+npm install
 cdk bootstrap
 
 # deploy:
 #  - replace the parameter value with your email address
 #  - once the stack is deployed, you will get a verification email
-#     from AWS SES, click on the link to confirm your ownership of
+#     from AWS SNS, click on the link to confirm your ownership of
 #     the email address
 cdk deploy --parameters scanResultNotificationEmail=YOUR_EMAIL_HERE
 
@@ -86,7 +85,7 @@ terraform init
 #  - You can add `notification_recipient` parameter to terraform.tfvars file
 #     so you don't need to be entering the email address every time you run Terraform.
 #  - once the resources are deployed, you will get a verification email
-#     from AWS SES, click on the link to confirm your ownership of
+#     from AWS SNS, click on the link to confirm your ownership of
 #     the email address
 terraform apply
 

@@ -2,7 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
-import * as ses from 'aws-cdk-lib/aws-ses';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as events from "aws-cdk-lib/aws-events";
@@ -29,29 +30,23 @@ export class AwsScoutAutomationStack extends cdk.Stack {
     // S3 bucket where the scan results are saved
     const s3Bucket = new s3.Bucket(this, "ScoutResultsBucket");
 
-    // email identity to send reports (both to and from)
-    const sesIdentity = new ses.EmailIdentity(this, 'ScoutIdentity', {
-      identity: ses.Identity.email(notificationEmail.valueAsString)
-    });
+    // SNS Topic for scan report notifications
+    const snsTopic = new sns.Topic(this, 'ScoutNotifications');
+    snsTopic.addSubscription(new subscriptions.EmailSubscription(notificationEmail.valueAsString));
 
     // Lambda that will be invoked when new object is uploaded to S3
-    // and will send notification emails through SES
+    // and will send notification emails through SNS
     const notificationLambda = new lambda.Function(this, "NotificationLambda", {
       runtime: lambda.Runtime.PYTHON_3_11,
       handler: 'index.handler',
       code: lambda.Code.fromAsset("../lambda-notifications"),
       environment: {
-        "SENDER": notificationEmail.valueAsString,
-        "RECIPIENT": notificationEmail.valueAsString
+        "SNS_TOPIC": snsTopic.topicArn
       }
     });
 
-    // add permissions for Lambda to send emails
-    notificationLambda.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['ses:SendEmail', 'ses:SendRawEmail'],
-      resources: [`arn:aws:ses:${this.region}:${this.account}:identity/${sesIdentity.emailIdentityName}`],
-      effect: iam.Effect.ALLOW,
-    }));
+    // add permissions for Lambda to send emails through SNS notifications
+    snsTopic.grantPublish(notificationLambda);
 
     // invoke the lambda on new object upload
     s3Bucket.addObjectCreatedNotification(new s3n.LambdaDestination(notificationLambda), {
